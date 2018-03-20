@@ -207,11 +207,9 @@ class Gnocchi(object):
                                (len(suffixes), n_values, v.type))
                 suffixes = ["-%d" % i for i in range(n_values)]
 
-        return (v.plugin + ("-" + v.plugin_instance
-                            if v.plugin_instance else "")
-                + "@"
-                + v.type + ("-" + v.type_instance
-                            if v.type_instance else ""),
+        return (v.plugin_instance if v.plugin_instance else "",
+                v.type + ("-" + v.type_instance
+                         if v.type_instance else ""),
                 suffixes)
 
     @log_full_exception
@@ -228,19 +226,21 @@ class Gnocchi(object):
 
         for host, values in itertools.groupby(
                 to_flush, operator.attrgetter("host")):
-            self._batch(host, values)
+            self._batch(values)
 
         self.values = not_to_flush
 
-    def _batch(self, host, values):
-        host_id = "collectd:" + host.replace("/", "_")
-        measures = {host_id: collections.defaultdict(list)}
+    def _batch(self, values):
+        measures = {}
         for v in values:
-            ident, suffixes = self._serialize_identifier(v)
+            host_id, ident, suffixes = self._serialize_identifier(v)
+            if host_id not in measures:
+                measures[host_id] = collections.defaultdict(list)
             for i, value in enumerate(v.values):
                 if not math.isnan(value):
                     measures[host_id][ident + suffixes[i]].append({
                         "timestamp": v.time,
+                        "unit": "W",
                         "value": value,
                     })
         try:
@@ -248,7 +248,8 @@ class Gnocchi(object):
                 measures, create_metrics=True)
         except exceptions.BadRequest:
             # Create the resource and try again
-            self._ensure_resource_exists(host_id, host)
+            for host_id in measures:
+                self._ensure_resource_exists(host_id, host_id)
             self.g.metric.batch_resources_metrics_measures(
                 measures, create_metrics=True)
 
