@@ -50,3 +50,9 @@ e.g. `/etc/collectd.d` if your distribution supports it.
 .. _`Gnocchi`: http://gnocchi.xyz
 .. _`PyPI`: http://pypi.python.org
 
+Retrieving measures
+===================
+
+You can retrieve power measurements for a node using its UUID::
+
+  openstack metric measures show power --resource-id=<node_uuid>
