@@ -53,6 +53,11 @@ e.g. `/etc/collectd.d` if your distribution supports it.
 Retrieving measures
 ===================
 
+Install the OpenStack client, as well as the Gnocchi client:
+
+  pip install --user python-openstackclient
+  pip install --user gnocchiclient
+
 You can retrieve power measurements for a node using its UUID::
 
   openstack metric measures show power --resource-id=<node_uuid>
