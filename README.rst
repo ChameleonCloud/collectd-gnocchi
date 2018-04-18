@@ -25,14 +25,9 @@ In order for the metric to be created correctly, be sure that you have matching
 Installation
 ============
 
-This is a regular Python package that you can install via `PyPI`_ using::
-
-  pip install collectd-gnocchi
-
-Or from sources using::
+From sources using::
 
   pip install .
-
 
 In order to use this plugin you will need a server running the **Gnocchi 3.1**
 or greater.
