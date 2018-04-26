@@ -208,8 +208,7 @@ class Gnocchi(object):
                 suffixes = ["-%d" % i for i in range(n_values)]
 
         return (v.plugin_instance if v.plugin_instance else "",
-                v.type + ("-" + v.type_instance
-                         if v.type_instance else ""),
+                v.type_instance if v.type_instance else "",
                 suffixes)
 
     @log_full_exception
