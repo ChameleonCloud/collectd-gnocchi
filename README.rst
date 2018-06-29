@@ -12,15 +12,16 @@ will create a resource type named _collectd_ (by default) and a new resource
 for each of the host monitored.
 
 Each host will have a list of metrics created dynamically using the following
-name convention:
+name convention::
 
   plugin-plugin_instance/type-type_instance-value_number
 
 In order for the metric to be created correctly, be sure that you have matching
 `archive policies rules`_.
 
+.. _`collectd`: http://collectd.org
+.. _`Gnocchi`: http://gnocchi.xyz
 .. _archive policies rules: http://gnocchi.xyz/rest.html#archive-policy-rule
-
 
 Installation
 ============
@@ -34,6 +35,7 @@ or greater.
 
 Configuration
 =============
+
 Once installed, you need to enable it in your `collectd.conf` file this way::
 
 .. include:: collectd-gnocchi.conf
@@ -41,14 +43,22 @@ Once installed, you need to enable it in your `collectd.conf` file this way::
 You can also copy the provided `collectd-gnocchi.conf` from this repository in
 e.g. `/etc/collectd.d` if your distribution supports it.
 
-.. _`collectd`: http://collectd.org
-.. _`Gnocchi`: http://gnocchi.xyz
-.. _`PyPI`: http://pypi.python.org
+Without tuning the Gnocchi configuration, metrics are only readable by their
+owner project, rather than by every user. Modify /etc/gnocchi/policy.json by
+adding a rule matching the project creating the power metrics::
+
+  "power_metrics_project": "'<power_metrics_project_id>':%(created_by_project_id)s",
+
+Update the following rules to grant permission if the rule we just created is valid::
+
+  "get resource": "rule:admin_or_creator or rule:resource_owner or rule:power_metrics_project",
+  "get metric": "rule:admin_or_creator or rule:metric_owner or rule:power_metrics_project",
+  "get measures":  "rule:admin_or_creator or rule:metric_owner or rule:power_metrics_project",
 
 Retrieving measures
 ===================
 
-Install the OpenStack client, as well as the Gnocchi client:
+Install the OpenStack client, as well as the Gnocchi client::
 
   pip install --user python-openstackclient
   pip install --user gnocchiclient
